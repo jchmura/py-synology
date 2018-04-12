@@ -140,6 +140,34 @@ class Api:
 
         return response.content
 
+    def camera_enable(self, camera_id, **kwargs):
+        """Enable a camera"""
+        api = self._api_info['camera']
+        payload = dict({
+            '_sid': self._sid,
+            'api': api['name'],
+            'method': 'Enable',
+            'version': 9,
+            'idList': camera_id,
+        }, **kwargs)
+        response = self._get_json_with_retry(api['url'], payload)
+
+        return response['success']
+
+    def camera_disable(self, camera_id, **kwargs):
+        """Disable a camera"""
+        api = self._api_info['camera']
+        payload = dict({
+            '_sid': self._sid,
+            'api': api['name'],
+            'method': 'Disable',
+            'version': 9,
+            'idList': camera_id,
+        }, **kwargs)
+        response = self._get_json_with_retry(api['url'], payload)
+
+        return response['success']
+
     def camera_event_motion_enum(self, camera_id, **kwargs):
         """Return motion settings matching camera_id."""
         api = self._api_info['camera_event']
@@ -217,8 +245,11 @@ class Camera:
         self._camera_id = data['id']
         self._name = data['name']
         self._is_enabled = data['enabled']
+        self._status = data['status']
         self._recording_status = data['recStatus']
         self._video_stream_url = video_stream_url_provider(self.camera_id)
+        self._host = data['host']
+        self._port = data['port']
 
     @property
     def camera_id(self):
@@ -239,6 +270,19 @@ class Camera:
     def is_enabled(self):
         """Return true if camera is enabled."""
         return self._is_enabled
+
+    @property
+    def status(self):
+        """Return the camera status"""
+        return self._status
+
+    @property
+    def host(self):
+        return self._host
+
+    @property
+    def port(self):
+        return self._port
 
     @property
     def is_recording(self):
